@@ -57,7 +57,7 @@ uv run -m src.Work0.main
 
 粒子群会跟随鼠标移动，呈现引力吸引效果：
 
-![粒子引力效果](https://via.placeholder.com/800x450?text=Taichi+Gravity+Swarm+Demo)
+![粒子引力效果演示](assets/demo.gif)
 
 **交互说明**：运行程序后，在弹出的窗口中移动鼠标，粒子会被鼠标吸引并跟随移动。
 
