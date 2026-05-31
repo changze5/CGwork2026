@@ -1,0 +1,18 @@
+# Taichi cache
+.taichi_cache/
+taichi_cache/
+
+# Output images (optional, but large)
+output/*.png
+output_advanced/*.png
+output_iter_*.png
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+output_log.txt
+complete_output_log.txt
