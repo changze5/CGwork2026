@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D立方体透视旋转</title>
+    <style>
+        body { margin: 0; padding: 0; background: #1a1a2e; }
+        canvas { display: block; }
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .controls label { display: block; margin: 10px 0; }
+        .controls input { width: 150px; }
+        .info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+        <h3>旋转控制</h3>
+        <label>
+            X轴旋转速度:
+            <input type="range" id="rxSpeed" min="0" max="10" value="1" step="0.1">
+        </label>
+        <label>
+            Y轴旋转速度:
+            <input type="range" id="rySpeed" min="0" max="10" value="2" step="0.1">
+        </label>
+        <label>
+            Z轴旋转速度:
+            <input type="range" id="rzSpeed" min="0" max="10" value="0.5" step="0.1">
+        </label>
+        <label>
+            <input type="checkbox" id="interpolation" checked> 启用旋转插值
+        </label>
+        <button id="resetBtn">重置姿态</button>
+        <button id="randomBtn">随机目标姿态</button>
+    </div>
+    <div class="info">
+        <h3>3D立方体透视旋转</h3>
+        <p>立方体: 8个顶点, 12条边</p>
+        <p>中心: (0, 0, 0)</p>
+        <p>边长: 2</p>
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>
