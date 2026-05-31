@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>反走样贝塞尔曲线与B样条曲线</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #fff;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .instructions {
+            color: #ddd;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .instructions span {
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 5px;
+        }
+        canvas {
+            border: 3px solid #4a90e2;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            cursor: crosshair;
+        }
+        .controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+        }
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #357abd;
+            transform: translateY(-2px);
+        }
+        .mode-indicator {
+            color: #4a90e2;
+            font-weight: bold;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>反走样贝塞尔曲线与B样条曲线绘制</h1>
+    <div class="instructions">
+        <span>左键点击</span> 添加控制点
+        <span>B</span> 切换曲线模式
+        <span>C</span> 清除画布
+    </div>
+    <canvas id="canvas" width="800" height="800"></canvas>
+    <div class="controls">
+        <button onclick="clearCanvas()">清除 (C)</button>
+        <div class="mode-indicator" id="modeDisplay">当前模式: Bezier (贝塞尔曲线)</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const modeDisplay = document.getElementById('modeDisplay');
+        
+        const WIDTH = canvas.width;
+        const HEIGHT = canvas.height;
+        const NUM_SEGMENTS = 1000;
+        
+        let controlPoints = [];
+        let curveMode = 'bezier';
+        
+        function deCasteljau(points, t) {
+            if (points.length === 1) {
+                return [...points[0]];
+            }
+            const nextPoints = [];
+            for (let i = 0; i < points.length - 1; i++) {
+                const p0 = points[i];
+                const p1 = points[i + 1];
+                nextPoints.push([
+                    (1 - t) * p0[0] + t * p1[0],
+                    (1 - t) * p0[1] + t * p1[1]
+                ]);
+            }
+            return deCasteljau(nextPoints, t);
+        }
+        
+        function uniformCubicBSplineBasis(t) {
+            const t2 = t * t;
+            const t3 = t2 * t;
+            return [
+                (-t3 + 3 * t2 - 3 * t + 1) / 6.0,
+                (3 * t3 - 6 * t2 + 4) / 6.0,
+                (-3 * t3 + 3 * t2 + 3 * t + 1) / 6.0,
+                t3 / 6.0
+            ];
+        }
+        
+        function evaluateBSplineSegment(controlPoints, t) {
+            const bases = uniformCubicBSplineBasis(t);
+            let x = 0, y = 0;
+            for (let i = 0; i < 4; i++) {
+                x += bases[i] * controlPoints[i][0];
+                y += bases[i] * controlPoints[i][1];
+            }
+            return [x, y];
+        }
+        
+        function generateBSplinePoints(controlPoints, segmentsPerCurve = 250) {
+            if (controlPoints.length < 4) return [];
+            
+            const allPoints = [];
+            const numSegments = controlPoints.length - 3;
+            
+            for (let seg = 0; seg < numSegments; seg++) {
+                const segmentPoints = controlPoints.slice(seg, seg + 4);
+                for (let i = 0; i <= segmentsPerCurve; i++) {
+                    const t = i / segmentsPerCurve;
+                    allPoints.push(evaluateBSplineSegment(segmentPoints, t));
+                }
+            }
+            
+            return allPoints;
+        }
+        
+        function drawAntialiasedCurve(curvePoints) {
+            const imageData = ctx.getImageData(0, 0, WIDTH, HEIGHT);
+            const data = imageData.data;
+            
+            for (const pt of curvePoints) {
+                const xCenter = pt[0];
+                const yCenter = pt[1];
+                
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        const px = Math.floor(xCenter + dx);
+                        const py = Math.floor(yCenter + dy);
+                        
+                        if (px >= 0 && px < WIDTH && py >= 0 && py < HEIGHT) {
+                            const pixelCenterX = px + 0.5;
+                            const pixelCenterY = py + 0.5;
+                            
+                            const distX = xCenter - pixelCenterX;
+                            const distY = yCenter - pixelCenterY;
+                            const distance = Math.sqrt(distX * distX + distY * distY);
+                            
+                            let weight = Math.max(0, 1 - distance / 1.2);
+                            weight = weight * weight * weight;
+                            
+                            const idx = (py * WIDTH + px) * 4;
+                            
+                            const newR = Math.min(255, data[idx] + 0 * weight * 0.7);
+                            const newG = Math.min(255, data[idx + 1] + 255 * weight * 0.7);
+                            const newB = Math.min(255, data[idx + 2] + 0 * weight * 0.7);
+                            
+                            data[idx] = newR;
+                            data[idx + 1] = newG;
+                            data[idx + 2] = newB;
+                        }
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        function render() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            
+            if (curveMode === 'bezier' && controlPoints.length >= 2) {
+                const curvePoints = [];
+                for (let t = 0; t <= 1; t += 1 / NUM_SEGMENTS) {
+                    curvePoints.push(deCasteljau(controlPoints, t));
+                }
+                drawAntialiasedCurve(curvePoints);
+            } else if (curveMode === 'bspline' && controlPoints.length >= 4) {
+                const bsplinePoints = generateBSplinePoints(controlPoints, 250);
+                drawAntialiasedCurve(bsplinePoints);
+            }
+            
+            if (controlPoints.length > 0) {
+                ctx.strokeStyle = '#888';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(controlPoints[0][0], controlPoints[0][1]);
+                for (let i = 1; i < controlPoints.length; i++) {
+                    ctx.lineTo(controlPoints[i][0], controlPoints[i][1]);
+                }
+                ctx.stroke();
+                
+                ctx.fillStyle = '#f00';
+                for (const pt of controlPoints) {
+                    ctx.beginPath();
+                    ctx.arc(pt[0], pt[1], 5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+        
+        function clearCanvas() {
+            controlPoints = [];
+            render();
+        }
+        
+        function switchMode() {
+            curveMode = curveMode === 'bezier' ? 'bspline' : 'bezier';
+            const modeName = curveMode === 'bezier' ? 'Bezier (贝塞尔曲线)' : 'B-Spline (B样条曲线)';
+            modeDisplay.textContent = `当前模式: ${modeName}`;
+            render();
+        }
+        
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            controlPoints.push([x, y]);
+            console.log(`Added control point: [${x.toFixed(1)}, ${y.toFixed(1)}]`);
+            render();
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'b') {
+                switchMode();
+            } else if (e.key.toLowerCase() === 'c') {
+                clearCanvas();
+            }
+        });
+        
+        render();
+    </script>
+</body>
+</html>
