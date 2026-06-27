@@ -2,13 +2,13 @@
 姓名：吴鑫
 专业：计算机科学与技术（公费师范）
 
-## 效果展示
-
-![效果展示](./效果展示.gif)
-
 # 光线追踪演示 (Ray Tracing Demo)
 
 使用 Taichi 实现的简单光线追踪渲染器。
+
+## 效果展示
+
+![alt text](demo.gif)
 
 ## 功能特性
 
@@ -49,5 +49,5 @@ python ray_tracing.py
 work5/
 ├── ray_tracing.py    # 光线追踪主程序
 ├── README.md         # 项目说明文档
-└── 效果展示.gif      # 效果演示
+└── demo.gif      # 效果演示
 ```
