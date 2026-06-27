@@ -1,4 +1,11 @@
+学号：202411081017
+姓名：吴鑫
+专业：计算机科学与技术（公费师范）
+
 # 贝塞尔曲线交互式绘制程序
+
+# 效果展示
+<img width="800" height="798" alt="效果展示" src="https://github.com/user-attachments/assets/9396e3e6-3be9-404b-8eb4-52429eb57f61" />
 
 ## 项目简介
 
