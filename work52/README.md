@@ -2,7 +2,7 @@
 姓名：吴鑫
 专业：计算机科学与技术（公费师范）
 ## 效果展示
-
+work52/效果展示.gif
 
 # Ray Tracing Demo - Work 5.2
 
