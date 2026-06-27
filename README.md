@@ -105,7 +105,3 @@ python complete_differentiable_rendering.py
 - `output/iter_*.png` - 迭代过程中间结果（每 30 步保存一张）
 
 所有图像左侧为目标图像，右侧为当前渲染结果。
-
-## 📝 作者与日期
-
-- 日期: 2026年5月31日
