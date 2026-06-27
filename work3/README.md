@@ -5,7 +5,7 @@
 # 贝塞尔曲线交互式绘制程序
 
 # 效果展示
-<img width="800" height="798" alt="效果展示" src="https://github.com/user-attachments/assets/9ad11f03-b2f9-49c0-b93e-166b3386d2ec" />
+![alt text](demo.gif)
 
 ## 项目简介
 
