@@ -1,6 +1,13 @@
+学号：202411081017
+姓名：吴鑫
+专业：计算机科学与技术（公费师范）
 # 3D 变换演示 (Taichi)
 
 基于 Taichi 的 3D 图形变换演示程序，实现 MVP（Model-View-Projection）变换矩阵的完整流程。
+
+## 效果展示
+
+![alt text](demo.gif)
 
 ## 功能特性
 
@@ -49,7 +56,6 @@ work2/
 ├── 3d_transformation.py    # 主程序
 ├── README.md               # 项目说明
 ├── python-3.12.5-amd64.exe # Python 安装程序
-└── 效果展示.gif             # 演示效果
 ```
 
 ## 技术实现
