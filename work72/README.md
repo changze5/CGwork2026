@@ -2,7 +2,7 @@
 姓名：吴鑫
 专业：计算机科学与技术（公费师范）
 
-## 效果展示
+## 效果展示（见效果展示.gif）
 
 # Mass Spring Cloth Simulation - work72
 
